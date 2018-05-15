@@ -182,7 +182,7 @@ function PlaygroundXyzHtb(configs) {
 
 
         /* Change this to your bidder endpoint.*/
-        var baseUrl = Browser.getProtocol() + PREBID_ENABLE;
+        var baseUrl = Browser.getProtocol() + PREBID_ENDPOINT;
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
