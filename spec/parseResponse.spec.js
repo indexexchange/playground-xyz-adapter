@@ -112,7 +112,10 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockMraResponseData.json')));
+            if (partnerProfile.architecture) {
+              responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockSraResponseData.json')));
+            }
             mockData = responseData;
         });
 
@@ -342,7 +345,10 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockMraResponseData.json')));
+            if (partnerProfile.architecture) {
+              responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockSraResponseData.json')));
+            }
             mockData = responseData;
         });
 
@@ -466,7 +472,7 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockSraResponseData.json')));
             mockData = responseData;
         });
 
