@@ -36,7 +36,7 @@ var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
-var PREBID_ENDPOINT = '//ib.adnxs.com/ut/v3/prebid';
+var PREBID_ENDPOINT = '//ads.playground.xyz/host-config/prebid';
 var PREBID_SOURCE = "pbjs";
 var PREBID_VERSION = "3.0.0";
 var PREBID_AD_TYPES = [ "banner" ];
@@ -436,6 +436,7 @@ function PlaygroundXyzHtb(configs) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             }
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
+
             //? }
 
             //? if (FEATURES.RETURN_CREATIVE) {
