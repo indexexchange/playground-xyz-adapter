@@ -233,7 +233,7 @@ function PlaygroundXyzHtb(configs) {
             callbackId: callbackId,
             networkParamOverrides: {
                 method: 'POST',
-                contentType: 'text/plain'
+                contentType: 'application/json'
             }
         };
     }
