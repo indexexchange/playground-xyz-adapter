@@ -161,7 +161,7 @@ function PlaygroundXyzHtb(configs) {
         var callbackId = System.generateUniqueId();
         returnParcels.forEach(function(rp) {
             var sizes = rp.xSlotRef.sizes;
-            if (sizes.lenght && sizes.length === 0) {
+            if (sizes.length && sizes.length === 0) {
                 console.error("Playground XYZ: Error in sizes array");
                 return;
             }
