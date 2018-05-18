@@ -36,7 +36,7 @@ var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
-var PREBID_ENDPOINT = '//ads.playground.xyz/host-config/prebid';
+var PREBID_ENDPOINT = 'https://ads.playground.xyz/host-config/prebid';
 var PREBID_SOURCE = "pbjs";
 var PREBID_VERSION = "3.0.0";
 var PREBID_AD_TYPES = [ "banner" ];
@@ -182,7 +182,7 @@ function PlaygroundXyzHtb(configs) {
 
 
         /* Change this to your bidder endpoint.*/
-        var baseUrl = Browser.getProtocol() + PREBID_ENDPOINT;
+        var baseUrl =  PREBID_ENDPOINT + '?cb=' + System.generateUniqueId();
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
