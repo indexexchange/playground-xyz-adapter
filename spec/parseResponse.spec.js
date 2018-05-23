@@ -112,10 +112,7 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockMraResponseData.json')));
-            if (partnerProfile.architecture) {
-              responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockSraResponseData.json')));
-            }
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
             mockData = responseData;
         });
 
@@ -179,7 +176,9 @@ describe('parseResponse', function () {
                     }
                 }, returnParcels[i]);
 
-                expect(result.valid, result.format()).to.be.true;
+                if (!returnParcels[i].pass || returnParcels[i].pass == false) {
+                    expect(result.valid, result.format()).to.be.true;
+                }
             }
         });
 
@@ -345,10 +344,7 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockMraResponseData.json')));
-            if (partnerProfile.architecture) {
-              responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockSraResponseData.json')));
-            }
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseNoBidData.json')));
             mockData = responseData;
         });
 
@@ -411,7 +407,9 @@ describe('parseResponse', function () {
                     }
                 }, returnParcels[i]);
 
-                expect(result.valid, result.format()).to.be.true;
+                if (!returnParcels[i].pass || returnParcels[i].pass == false) {
+                  expect(result.valid, result.format()).to.be.true;
+                }
             }
         });
 
@@ -472,7 +470,7 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockSraResponseData.json')));
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
             mockData = responseData;
         });
 

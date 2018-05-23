@@ -37,13 +37,6 @@ var Whoopsie = require('whoopsie.js');
 //? }
 
 var PREBID_ENDPOINT = 'https://ads.playground.xyz/host-config/prebid';
-var PREBID_SOURCE = "pbjs";
-var PREBID_VERSION = "3.0.0";
-var PREBID_AD_TYPES = [ "banner" ];
-var PREBID_ALLOW_SMALLER_SIZES = false;
-var PREBID_USE_PMT_RULE = false;
-var PREBID_DISABLE_PSA = true;
-var PREBID_ENABLE = true;
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +74,72 @@ function PlaygroundXyzHtb(configs) {
 
     /* Utilities
      * ---------------------------------- */
+    function _populateSiteObject() {
+        var siteObj =
+            {
+                page: Browser.topWindow.location.href,
+                domain: Browser.getProtocol() + '://' + Browser.topWindow.location.hostname,
+                name: Browser.topWindow.location.hostname
+            };
+        return siteObj;
+     }
+
+    function _populateImpObject(returnParcels) {
+        var retArr = [],
+            impObj = {},
+            sizes = [];
+
+        returnParcels.forEach(function(rp) {
+            impObj = {
+                id:  rp.htSlot.getId(),
+                tagId: rp.xSlotRef.adUnitName,
+                ext: {
+                    appnexus: {
+                        placement_id: parseInt(rp.xSlotRef.placementId, 10)
+                    }
+                }
+            }
+            sizes = rp.xSlotRef.sizes;
+            if (sizes.length <= 2) {
+                impObj.banner = {
+                    w: parseInt(sizes[0][0], 10),
+                    h: parseInt(sizes[0][1], 10),
+                   format: _getFormats(sizes)
+                }
+            } else {
+                console.log("Playground: Error more than 2 sizes found in config");
+            }
+            retArr.push(impObj);
+        });
+        return retArr;
+    }
+
+    function _getFormats(sizes) {
+        var format = [];
+        sizes.forEach(function(size) {
+            format.push({
+                w: parseInt(size[0], 10),
+                h: parseInt(size[1], 10)
+            });
+        });
+        return format;
+    }
+
+    function _populateDeviceInfo(){
+        return {
+            ua: Browser.getUserAgent(),
+            language: Browser.getLanguage(),
+            devicetype: _isMobile() ? 1 : _isConnectedTV() ? 3 : 2,
+        }
+    }
+
+    function _isMobile() {
+        return (/(ios|ipod|ipad|iphone|android)/i).test(Browser.getUserAgent());
+    }
+
+    function _isConnectedTV() {
+        return (/(smart[-]?tv|hbbtv|appletv|googletv|hdmi|netcast\.tv|viera|nettv|roku|\bdtv\b|sonydtv|inettvbrowser|\btv\b)/i).test(Browser.getUserAgent());
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -150,36 +209,15 @@ function PlaygroundXyzHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-
-        var queryObj = {
-            tags: [],
-            sdk: {
-                source:PREBID_SOURCE,
-                version: PREBID_VERSION
-            }
-        };
+        var payload = {};
         var callbackId = System.generateUniqueId();
-        returnParcels.forEach(function(rp) {
-            var sizes = rp.xSlotRef.sizes;
-            if (sizes && sizes.length === 0) {
-                console.error("Playground XYZ: Error in sizes array");
-                return;
-            }
-            var tagPrimarySize = { width: sizes[0][0], height: sizes[0][1] };
-            var tagSizes = sizes.map(function(s) { return { width: s[0], height: s[1] }});
-            queryObj.tags.push({
-              sizes: tagSizes,
-              primary_size: tagPrimarySize,
-              ad_types: PREBID_AD_TYPES,
-              uuid: System.generateUniqueId(),
-              id: parseInt(rp.xSlotRef.placementId),
-              allow_smaller_sizes: PREBID_ALLOW_SMALLER_SIZES,
-              use_pmt_rule: PREBID_USE_PMT_RULE,
-              prebid: PREBID_ENABLE,
-              disable_psa: PREBID_DISABLE_PSA
-            });
-        });
-
+        payload = {
+            id: '' + new Date().getTime(),
+            cur: ['USD'],
+            site: _populateSiteObject(),
+            imp: _populateImpObject(returnParcels),
+            device: _populateDeviceInfo()
+        }
 
         /* Change this to your bidder endpoint.*/
         var baseUrl =  PREBID_ENDPOINT + '?cb=' + System.generateUniqueId();
@@ -229,7 +267,7 @@ function PlaygroundXyzHtb(configs) {
 
         return {
             url: baseUrl,
-            data: queryObj,
+            data: payload,
             callbackId: callbackId,
             networkParamOverrides: {
                 method: 'POST',
@@ -316,11 +354,11 @@ function PlaygroundXyzHtb(configs) {
         /* ---------- Process adResponse and extract the bids into the bids array ------------*/
 
         var bids = [];
-        if (adResponse && adResponse.tags
-          && adResponse.tags.length > 0) {
-            bids = adResponse.tags
+        if (adResponse && adResponse.seatbid && adResponse.seatbid.length > 0) {
+            for (var i = 0; i < adResponse.seatbid.length; i++) {
+                bids = bids.concat(adResponse.seatbid[i].bid);
+            }
           }
-
         /* --------------------------------------------------------------------------------- */
 
         for (var j = 0; j < returnParcels.length; j++) {
@@ -333,6 +371,16 @@ function PlaygroundXyzHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid;
+            var sizes;
+
+            if(!bids || bids.length === 0) {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                curReturnParcel.pass = true;
+                continue;
+            }
+
             for (var i = 0; i < bids.length; i++) {
 
                 /**
@@ -343,15 +391,20 @@ function PlaygroundXyzHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (Number(curReturnParcel.xSlotRef.placementId) === bids[i].tag_id) {
-                    curBid = bids[i];
-                    bids.splice(i, 1);
-                    break;
+
+                sizes = curReturnParcel.xSlotRef.sizes[0];
+
+                if (bids[i].impid === curReturnParcel.htSlot.getId()) {
+                    if (parseInt(bids[i].w) === parseInt(sizes[0]) && parseInt(bids[i].h) === parseInt(sizes[1])) {
+                        curBid = bids[i];
+                        bids.splice(i, 1);
+                        break;
+                    }
                 }
             }
 
             /* No matching bid found so its a pass */
-            if (!curBid || curBid.nobid === true) {
+            if (!curBid) {
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
@@ -370,24 +423,16 @@ function PlaygroundXyzHtb(configs) {
              */
             var bidCreative = null;
             var bidSize = null;
-            var bidPrice = 0;
+            /* the bid price for the given slot */
+            var bidPrice = curBid.price;
+
+            /* the bid price for the given slot */
             var trackingUrl = '';
-            // appnexus prebid endpoint return the a bid response with an ad inside of an array.
-            // we pick the first available ad.
-            if (curBid.ads && curBid.ads.length > 0 && curBid.ads[0].rtb) {
-                var banner = curBid.ads[0].rtb.banner;
-                bidCreative = banner.content;
-                /* the size of the given slot */
-                bidSize =[Number(banner.width), Number(banner.height)];
 
-              var trackers = curBid.ads[0].rtb.trackers;
-              if (trackers.length > 0 && trackers[0].impressions_urls && trackers[0].impressions_urls.length > 0) {
-                  trackingUrl = trackers[0].impression_urls[0];
-              }
+            /* the size of the given slot */
+            var bidSize = [Number(curBid.w), Number(curBid.h)];
 
-                /* the bid price for the given slot */
-                bidPrice = curBid.ads[0].cpm_publisher_currency;
-            }
+            var bidCreative = curBid.adm;
 
             /* the dealId if applicable for this slot. */
             var bidDealId = curBid.dealid;
