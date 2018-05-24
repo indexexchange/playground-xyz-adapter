@@ -107,7 +107,7 @@ function PlaygroundXyzHtb(configs) {
                    format: _getFormats(sizes)
                 }
             } else {
-                console.log("Playground: Error more than 2 sizes found in config");
+                console.error("Playground: more than 2 sizes found in config");
             }
             retArr.push(impObj);
         });
@@ -392,6 +392,10 @@ function PlaygroundXyzHtb(configs) {
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
 
+                if (!curReturnParcel.xSlotRef.sizes) {
+                  console.error("Playground: sizes not found in slot :'" + curReturnParcel.htSlot.getId() + "'");
+                  continue;
+                }
                 sizes = curReturnParcel.xSlotRef.sizes[0];
 
                 if (bids[i].impid === curReturnParcel.htSlot.getId()) {
