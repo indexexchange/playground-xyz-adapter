@@ -213,7 +213,6 @@ function PlaygroundXyzHtb(configs) {
         var callbackId = System.generateUniqueId();
         payload = {
             id: '' + new Date().getTime(),
-            cur: ['USD'],
             site: _populateSiteObject(),
             imp: _populateImpObject(returnParcels),
             device: _populateDeviceInfo()
