@@ -100,7 +100,10 @@ describe('generateRequestObj', function () {
                     callbackId: {
                         type: 'string',
                         minLength: 1
-                    }
+                    },
+                    networkParamOverrides: {
+                        type: 'object'
+                  }
                 }
             }, requestObject);
 
@@ -122,6 +125,11 @@ describe('generateRequestObj', function () {
                 */
             expect(requestObject).to.exist;
         });
+
+        it('check gdpr', function() {
+           expect(requestObject.data.user.ext).to.deep.equal({consent: 'PCYSWlgOQ7WlgASxswCTMbJOACgACAAQABA'});
+           expect(requestObject.data).to.have.deep.property('regs', {ext: {gdpr: 1}});
+        })
         /* -----------------------------------------------------------------------*/
 
     /* ---------- IF MRA, generate a single request for each parcel ---------- */

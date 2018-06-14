@@ -36,6 +36,14 @@ var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
+var PREBID_ENDPOINT = '//ib.adnxs.com/ut/v3/prebid';
+var PREBID_SOURCE = "pbjs";
+var PREBID_VERSION = "3.0.0";
+var PREBID_AD_TYPES = [ "banner" ];
+var PREBID_ALLOW_SMALLER_SIZES = false;
+var PREBID_USE_PMT_RULE = false;
+var PREBID_DISABLE_PSA = true;
+var PREBID_ENABLE = true;
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -142,11 +150,39 @@ function PlaygroundXyzHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var queryObj = {};
+
+        var queryObj = {
+            tags: [],
+            sdk: {
+                source:PREBID_SOURCE,
+                version: PREBID_VERSION
+            }
+        };
         var callbackId = System.generateUniqueId();
+        returnParcels.forEach(function(rp) {
+            var sizes = rp.xSlotRef.sizes;
+            if (sizes.lenght && sizes.length === 0) {
+                console.error("Playground XYZ: Error in sizes array");
+                return;
+            }
+            var tagPrimarySize = { width: sizes[0][0], height: sizes[0][1] };
+            var tagSizes = sizes.map(function(s) { return { width: s[0], height: s[1] }});
+            queryObj.tags.push({
+              sizes: tagSizes,
+              primary_size: tagPrimarySize,
+              ad_types: PREBID_AD_TYPES,
+              uuid: System.generateUniqueId(),
+              id: parseInt(rp.xSlotRef.placementId),
+              allow_smaller_sizes: PREBID_ALLOW_SMALLER_SIZES,
+              use_pmt_rule: PREBID_USE_PMT_RULE,
+              prebid: PREBID_ENABLE,
+              disable_psa: PREBID_DISABLE_PSA
+            });
+        });
+
 
         /* Change this to your bidder endpoint.*/
-        var baseUrl = Browser.getProtocol() + '//someAdapterEndpoint.com/bid';
+        var baseUrl = Browser.getProtocol() + PREBID_ENABLE;
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -174,6 +210,16 @@ function PlaygroundXyzHtb(configs) {
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        if (gdprStatus && privacyEnabled) {
+            if (typeof gdprStatus.applies === 'boolean') {
+              queryObj.regs = {
+                  ext: { gdpr: (gdprStatus.applies ? 1: 0) }
+              };
+            }
+            queryObj.user = {
+                ext: {consent: gdprStatus.consentString}
+            };
+        }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
@@ -184,7 +230,11 @@ function PlaygroundXyzHtb(configs) {
         return {
             url: baseUrl,
             data: queryObj,
-            callbackId: callbackId
+            callbackId: callbackId,
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain'
+            }
         };
     }
 
@@ -265,7 +315,11 @@ function PlaygroundXyzHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------*/
 
-        var bids = adResponse;
+        var bids = [];
+        if (adResponse && adResponse.tags
+          && adResponse.tags.length > 0) {
+            bids = adResponse.tags
+          }
 
         /* --------------------------------------------------------------------------------- */
 
@@ -279,7 +333,6 @@ function PlaygroundXyzHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid;
-
             for (var i = 0; i < bids.length; i++) {
 
                 /**
@@ -290,7 +343,7 @@ function PlaygroundXyzHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
+                if (Number(curReturnParcel.xSlotRef.placementId) === bids[i].tag_id) {
                     curBid = bids[i];
                     bids.splice(i, 1);
                     break;
@@ -298,7 +351,7 @@ function PlaygroundXyzHtb(configs) {
             }
 
             /* No matching bid found so its a pass */
-            if (!curBid) {
+            if (!curBid || curBid.nobid === true) {
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
@@ -311,16 +364,30 @@ function PlaygroundXyzHtb(configs) {
             /* Using the above variable, curBid, extract various information about the bid and assign it to
              * these local variables */
 
-            /* the bid price for the given slot */
-            var bidPrice = curBid.price;
-
-            /* the size of the given slot */
-            var bidSize = [Number(curBid.width), Number(curBid.height)];
 
             /* the creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = curBid.adm;
+            var bidCreative = null;
+            var bidSize = null;
+            var bidPrice = 0;
+            var trackingUrl = '';
+            // appnexus prebid endpoint return the a bid response with an ad inside of an array.
+            // we pick the first available ad.
+            if (curBid.ads && curBid.ads.length > 0 && curBid.ads[0].rtb) {
+                var banner = curBid.ads[0].rtb.banner;
+                bidCreative = banner.content;
+                /* the size of the given slot */
+                bidSize =[Number(banner.width), Number(banner.height)];
+
+              var trackers = curBid.ads[0].rtb.trackers;
+              if (trackers.length > 0 && trackers[0].impressions_urls && trackers[0].impressions_urls.length > 0) {
+                  trackingUrl = trackers[0].impression_urls[0];
+              }
+
+                /* the bid price for the given slot */
+                bidPrice = curBid.ads[0].cpm_publisher_currency;
+            }
 
             /* the dealId if applicable for this slot. */
             var bidDealId = curBid.dealid;
@@ -332,7 +399,7 @@ function PlaygroundXyzHtb(configs) {
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            var pixelUrl = '';
+            var pixelUrl = trackingUrl;
 
             /* ---------------------------------------------------------------------------------------*/
 
@@ -443,11 +510,11 @@ function PlaygroundXyzHtb(configs) {
                 pm: 'ix_pxyz_cpm',
                 pmid: 'ix_pxyz_dealid'
             },
-            bidUnitInCents: 1, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+            bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.ID, // Callback type, please refer to the readme for details
+            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
             architecture: Partner.Architectures.SRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.ANY // Request type, jsonp, ajax, or any.
+            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
         };
         /* ---------------------------------------------------------------------------------------*/
 

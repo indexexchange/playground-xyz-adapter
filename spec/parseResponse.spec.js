@@ -113,7 +113,7 @@ describe('parseResponse', function () {
 
             /* Get mock response data from our responseData file */
             responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
-            mockData = responseData.bid;
+            mockData = responseData;
         });
 
         afterEach(function () {
@@ -202,6 +202,27 @@ describe('parseResponse', function () {
             }
         });
 
+        it('no bid parcel should have the correct values set', function () {
+
+
+            /* IF SRA, parse all parcels at once */
+            if (partnerProfile.architecture) partnerModule.parseResponse(1, mockData, returnParcels);
+
+            for (var i = 0; i < returnParcels.length; i++) {
+
+                /* IF MRA, parse one parcel at a time */
+                if (!partnerProfile.architecture) partnerModule.parseResponse(1, mockData[i], [returnParcels[i]]);
+
+                /* Add test cases to test against each of the parcel's set fields
+                 * to make sure the response was parsed correctly.
+                 *
+                 * The parcels have already been parsed and should contain all the
+                 * necessary demand.
+                 */
+
+                expect(returnParcels[i]).to.exist;
+            }
+        });
         it('registerAd should be called with correct adEntry', function () {
             var i, expectedAdEntry = [];
 
@@ -238,8 +259,8 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
-            mockData = responseData.pass;
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseNoBidData.json')));
+            mockData = responseData;
         });
 
         afterEach(function () {
@@ -322,7 +343,7 @@ describe('parseResponse', function () {
 
             /* Get mock response data from our responseData file */
             responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
-            mockData = responseData.deals;
+            mockData = responseData;
         });
 
         afterEach(function () {
@@ -358,14 +379,6 @@ describe('parseResponse', function () {
                                     }
                                 },
                                 [partnerModule.profile.targetingKeys.pm]: {
-                                    type: 'array',
-                                    exactLength: 1,
-                                    items: {
-                                        type: 'string',
-                                        minLength: 1
-                                    }
-                                },
-                                [partnerModule.profile.targetingKeys.pmid]: {
                                     type: 'array',
                                     exactLength: 1,
                                     items: {
@@ -454,7 +467,7 @@ describe('parseResponse', function () {
 
             /* Get mock response data from our responseData file */
             responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
-            mockData = responseData.dealid;
+            mockData = responseData;
         });
 
         afterEach(function () {
