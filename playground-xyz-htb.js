@@ -36,7 +36,6 @@ var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
-var PREBID_ENDPOINT = 'https://ads.playground.xyz/host-config/prebid';
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +91,6 @@ function PlaygroundXyzHtb(configs) {
         returnParcels.forEach(function(rp) {
             impObj = {
                 id:  rp.htSlot.getId(),
-                tagId: rp.xSlotRef.adUnitName,
                 ext: {
                     appnexus: {
                         placement_id: parseInt(rp.xSlotRef.placementId, 10)
@@ -209,6 +207,7 @@ function PlaygroundXyzHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
+        var PREBID_ENDPOINT = 'https://ads.playground.xyz/host-config/prebid';
         var payload = {};
         var callbackId = System.generateUniqueId();
         payload = {
@@ -249,11 +248,11 @@ function PlaygroundXyzHtb(configs) {
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
         if (gdprStatus && privacyEnabled) {
             if (typeof gdprStatus.applies === 'boolean') {
-              queryObj.regs = {
+              payload.regs = {
                   ext: { gdpr: (gdprStatus.applies ? 1: 0) }
               };
             }
-            queryObj.user = {
+            payload.user = {
                 ext: {consent: gdprStatus.consentString}
             };
         }
@@ -270,7 +269,7 @@ function PlaygroundXyzHtb(configs) {
             callbackId: callbackId,
             networkParamOverrides: {
                 method: 'POST',
-                contentType: 'application/json'
+                contentType: 'text/plain'
             }
         };
     }

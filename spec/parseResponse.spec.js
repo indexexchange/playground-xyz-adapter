@@ -176,9 +176,7 @@ describe('parseResponse', function () {
                     }
                 }, returnParcels[i]);
 
-                if (!returnParcels[i].pass || returnParcels[i].pass == false) {
-                    expect(result.valid, result.format()).to.be.true;
-                }
+                expect(result.valid, result.format()).to.be.true;
             }
         });
 
@@ -344,7 +342,7 @@ describe('parseResponse', function () {
             returnParcels = generateReturnParcels(partnerModule.profile, partnerConfig);
 
             /* Get mock response data from our responseData file */
-            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseNoBidData.json')));
+            responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
             mockData = responseData;
         });
 
@@ -407,9 +405,7 @@ describe('parseResponse', function () {
                     }
                 }, returnParcels[i]);
 
-                if (!returnParcels[i].pass || returnParcels[i].pass == false) {
-                  expect(result.valid, result.format()).to.be.true;
-                }
+                expect(result.valid, result.format()).to.be.true;
             }
         });
 
