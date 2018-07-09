@@ -390,10 +390,6 @@ function PlaygroundXyzHtb(configs) {
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
 
-                if (!curReturnParcel.xSlotRef.sizes) {
-                  console.error("Playground: sizes not found in slot :'" + curReturnParcel.htSlot.getId() + "'");
-                  continue;
-                }
                 sizes = curReturnParcel.xSlotRef.sizes[0];
 
                 if (bids[i].impid === curReturnParcel.htSlot.getId()) {
@@ -441,8 +437,7 @@ function PlaygroundXyzHtb(configs) {
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            var trackingUrl = '';
-            var pixelUrl = trackingUrl;
+            var pixelUrl = '';
 
             /* ---------------------------------------------------------------------------------------*/
 
