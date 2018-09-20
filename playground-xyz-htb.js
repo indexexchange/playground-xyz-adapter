@@ -437,7 +437,7 @@ function PlaygroundXyzHtb(configs) {
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            var pixelUrl = '';
+            var pixelUrl = 'https://ib.adnxs.com/getuidnb?https://ads.playground.xyz/usersync?partner=appnexus&uid=$UID';
 
             /* ---------------------------------------------------------------------------------------*/
 
