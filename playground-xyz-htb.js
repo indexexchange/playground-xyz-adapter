@@ -98,14 +98,10 @@ function PlaygroundXyzHtb(configs) {
                 }
             }
             sizes = rp.xSlotRef.sizes;
-            if (sizes.length <= 2) {
-                impObj.banner = {
-                    w: parseInt(sizes[0][0], 10),
-                    h: parseInt(sizes[0][1], 10),
-                   format: _getFormats(sizes)
-                }
-            } else {
-                console.error("Playground: more than 2 sizes found in config");
+            impObj.banner = {
+                w: parseInt(sizes[0][0], 10),
+                h: parseInt(sizes[0][1], 10),
+               format: _getFormats(sizes)
             }
             retArr.push(impObj);
         });
