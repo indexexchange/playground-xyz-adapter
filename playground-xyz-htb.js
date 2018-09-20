@@ -77,7 +77,7 @@ function PlaygroundXyzHtb(configs) {
         var siteObj =
             {
                 page: Browser.topWindow.location.href,
-                domain: Browser.getProtocol() + '://' + Browser.topWindow.location.hostname,
+                domain: Browser.getProtocol() + '//' + Browser.topWindow.location.hostname,
                 name: Browser.topWindow.location.hostname
             };
         return siteObj;
