@@ -365,7 +365,6 @@ function PlaygroundXyzHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid;
-            var sizes;
 
             if(!bids || bids.length === 0) {
                 if (__profile.enabledAnalytics.requestTime) {
@@ -386,14 +385,10 @@ function PlaygroundXyzHtb(configs) {
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
 
-                sizes = curReturnParcel.xSlotRef.sizes[0];
-
                 if (bids[i].impid === curReturnParcel.htSlot.getId()) {
-                    if (parseInt(bids[i].w) === parseInt(sizes[0]) && parseInt(bids[i].h) === parseInt(sizes[1])) {
-                        curBid = bids[i];
-                        bids.splice(i, 1);
-                        break;
-                    }
+                      curBid = bids[i];
+                      bids.splice(i, 1);
+                      break;
                 }
             }
 
