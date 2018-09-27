@@ -9,7 +9,6 @@
  * distributed in any form or by any means, in whole or in part, without the
  * prior written permission of Index Exchange.
  */
-
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +23,9 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
+
 var ComplianceService;
-var EventsService;
+var EventsService; // eslint-disable-line no-unused-vars
 var RenderService;
 
 //? if (DEBUG) {
@@ -74,57 +73,51 @@ function PlaygroundXyzHtb(configs) {
     /* Utilities
      * ---------------------------------- */
     function _populateSiteObject() {
-        var siteObj =
-            {
-                page: Browser.topWindow.location.href,
-                domain: Browser.getProtocol() + '//' + Browser.topWindow.location.hostname,
-                name: Browser.topWindow.location.hostname
-            };
+        var siteObj = {
+            page: Browser.topWindow.location.href,
+            domain: Browser.getProtocol() + '//' + Browser.topWindow.location.hostname,
+            name: Browser.topWindow.location.hostname
+        };
+
         return siteObj;
-     }
-
-    function _populateImpObject(returnParcels) {
-        var retArr = [],
-            impObj = {},
-            sizes = [];
-
-        returnParcels.forEach(function(rp) {
-            impObj = {
-                id:  rp.htSlot.getId(),
-                ext: {
-                    appnexus: {
-                        placement_id: parseInt(rp.xSlotRef.placementId, 10)
-                    }
-                }
-            }
-            sizes = rp.xSlotRef.sizes;
-            impObj.banner = {
-                w: parseInt(sizes[0][0], 10),
-                h: parseInt(sizes[0][1], 10),
-               format: _getFormats(sizes)
-            }
-            retArr.push(impObj);
-        });
-        return retArr;
     }
 
     function _getFormats(sizes) {
         var format = [];
-        sizes.forEach(function(size) {
+        sizes.forEach(function (size) {
             format.push({
                 w: parseInt(size[0], 10),
                 h: parseInt(size[1], 10)
             });
         });
+
         return format;
     }
 
-    function _populateDeviceInfo(){
-        return {
-            ua: Browser.getUserAgent(),
-            language: Browser.getLanguage(),
-            devicetype: _isMobile() ? 1 : _isConnectedTV() ? 3 : 2,
-        }
+    function _populateImpObject(returnParcels) {
+        var retArr = [];
+        var impObj = {};
+        var sizes = [];
+
+        returnParcels.forEach(function (rp) {
+            impObj = {
+                id: rp.htSlot.getId(),
+                ext: {
+                    appnexus: {
+                        placement_id: parseInt(rp.xSlotRef.placementId, 10) // eslint-disable-line camelcase
+                    }
+                }
+            };
+            sizes = rp.xSlotRef.sizes;
+            impObj.banner = {
+                w: parseInt(sizes[0][0], 10),
+                h: parseInt(sizes[0][1], 10),
+                format: _getFormats(sizes)
+            };
+            retArr.push(impObj);
+        });
+
+        return retArr;
     }
 
     function _isMobile() {
@@ -133,6 +126,24 @@ function PlaygroundXyzHtb(configs) {
 
     function _isConnectedTV() {
         return (/(smart[-]?tv|hbbtv|appletv|googletv|hdmi|netcast\.tv|viera|nettv|roku|\bdtv\b|sonydtv|inettvbrowser|\btv\b)/i).test(Browser.getUserAgent());
+    }
+
+    function _deviceType() {
+        if (_isMobile()) {
+            return 1;
+        } else if (_isConnectedTV()) {
+            return 3;
+        }
+
+        return 2;
+    }
+
+    function _populateDeviceInfo() {
+        return {
+            ua: Browser.getUserAgent(),
+            language: Browser.getLanguage(),
+            devicetype: _deviceType()
+        };
     }
 
     /**
@@ -144,7 +155,6 @@ function PlaygroundXyzHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -207,14 +217,15 @@ function PlaygroundXyzHtb(configs) {
         var payload = {};
         var callbackId = System.generateUniqueId();
         payload = {
-            id: '' + new Date().getTime(),
+            id: String(new Date()
+                .getTime()),
             site: _populateSiteObject(),
             imp: _populateImpObject(returnParcels),
             device: _populateDeviceInfo()
-        }
+        };
 
-        /* Change this to your bidder endpoint.*/
-        var baseUrl =  PREBID_ENDPOINT + '?cb=' + System.generateUniqueId();
+        /* Change this to your bidder endpoint. */
+        var baseUrl = PREBID_ENDPOINT + '?cb=' + System.generateUniqueId();
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -234,7 +245,7 @@ function PlaygroundXyzHtb(configs) {
          *
          * You can also determine whether or not the publisher has enabled privacy
          * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
-         * 
+         *
          * This function will return a boolean, which indicates whether the wrapper's
          * privacy features are on (true) or off (false). If they are off, the values
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
@@ -244,12 +255,12 @@ function PlaygroundXyzHtb(configs) {
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
         if (gdprStatus && privacyEnabled) {
             if (typeof gdprStatus.applies === 'boolean') {
-              payload.regs = {
-                  ext: { gdpr: (gdprStatus.applies ? 1: 0) }
-              };
+                payload.regs = {
+                    ext: { gdpr: gdprStatus.applies ? 1 : 0 }
+                };
             }
             payload.user = {
-                ext: {consent: gdprStatus.consentString}
+                ext: { consent: gdprStatus.consentString }
             };
         }
 
@@ -282,10 +293,11 @@ function PlaygroundXyzHtb(configs) {
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
     function adResponseCallback(adResponse) {
-        /* get callbackId from adResponse here */
+        /* Get callbackId from adResponse here */
         var callbackId = 0;
         __baseClass._adResponseStore[callbackId] = adResponse;
     }
+
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
@@ -297,15 +309,15 @@ function PlaygroundXyzHtb(configs) {
      *
     */
 
-     /**
+    /**
      * This function will render the pixel given.
      * @param  {string} pixelUrl Tracking pixel img url.
      */
     function __renderPixel(pixelUrl) {
-        if (pixelUrl){
+        if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
-                method: 'GET',
+                method: 'GET'
             });
         }
     }
@@ -324,8 +336,6 @@ function PlaygroundXyzHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
-
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -345,18 +355,18 @@ function PlaygroundXyzHtb(configs) {
          *
          */
 
-        /* ---------- Process adResponse and extract the bids into the bids array ------------*/
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
         var bids = [];
         if (adResponse && adResponse.seatbid && adResponse.seatbid.length > 0) {
             for (var i = 0; i < adResponse.seatbid.length; i++) {
                 bids = bids.concat(adResponse.seatbid[i].bid);
             }
-          }
+        }
+
         /* --------------------------------------------------------------------------------- */
 
         for (var j = 0; j < returnParcels.length; j++) {
-
             var curReturnParcel = returnParcels[j];
 
             var headerStatsInfo = {};
@@ -365,18 +375,17 @@ function PlaygroundXyzHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid;
-            var sizes;
 
-            if(!bids || bids.length === 0) {
+            if (!bids || bids.length === 0) {
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
-            for (var i = 0; i < bids.length; i++) {
-
+            for (var k = 0; k < bids.length; k++) {
                 /**
                  * This section maps internal returnParcels and demand returned from the bid request.
                  * In order to match them correctly, they must be matched via some criteria. This
@@ -386,14 +395,11 @@ function PlaygroundXyzHtb(configs) {
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
 
-                sizes = curReturnParcel.xSlotRef.sizes[0];
+                if (bids[k].impid === curReturnParcel.htSlot.getId()) {
+                    curBid = bids[k];
+                    bids.splice(k, 1);
 
-                if (bids[i].impid === curReturnParcel.htSlot.getId()) {
-                    if (parseInt(bids[i].w) === parseInt(sizes[0]) && parseInt(bids[i].h) === parseInt(sizes[1])) {
-                        curBid = bids[i];
-                        bids.splice(i, 1);
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -403,31 +409,31 @@ function PlaygroundXyzHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
-            /* ---------- Fill the bid variables with data from the bid response here. ------------*/
+            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
              * these local variables */
 
-
-            /* the creative/adm for the given slot that will be rendered if is the winner.
+            /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            /* the bid price for the given slot */
+            /* The bid price for the given slot */
             var bidPrice = curBid.price;
 
-            /* the size of the given slot */
+            /* The size of the given slot */
             var bidSize = [Number(curBid.w), Number(curBid.h)];
 
             var bidCreative = curBid.adm;
 
-            /* the dealId if applicable for this slot. */
+            /* The dealId if applicable for this slot. */
             var bidDealId = curBid.dealid;
 
-            /* explicitly pass */
-            var bidIsPass = bidPrice <= 0 ? true : false;
+            /* Explicitly pass */
+            var bidIsPass = bidPrice <= 0;
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
@@ -435,7 +441,7 @@ function PlaygroundXyzHtb(configs) {
             */
             var pixelUrl = 'https://ib.adnxs.com/getuidnb?https://ads.playground.xyz/usersync?partner=appnexus&uid=$UID';
 
-            /* ---------------------------------------------------------------------------------------*/
+            /* --------------------------------------------------------------------------------------- */
 
             curBid = null;
             if (bidIsPass) {
@@ -446,6 +452,7 @@ function PlaygroundXyzHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
@@ -491,8 +498,8 @@ function PlaygroundXyzHtb(configs) {
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
                 price: targetingCpm,
-                dealId: bidDealId || undefined,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0,
+                dealId: bidDealId || '',
+                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0, // eslint-disable-line max-len
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
@@ -519,11 +526,11 @@ function PlaygroundXyzHtb(configs) {
          * Please fill out the below partner profile according to the steps in the README doc.
          */
 
-        /* ---------- Please fill out this partner profile according to your module ------------*/
+        /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'PlaygroundXyzHtb', // PartnerName
-            namespace: 'PlaygroundXyzHtb', // Should be same as partnerName
-            statsId: 'PXYZ', // Unique partner identifier
+            partnerId: 'PlaygroundXyzHtb',
+            namespace: 'PlaygroundXyzHtb',
+            statsId: 'PXYZ',
             version: '2.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -539,19 +546,20 @@ function PlaygroundXyzHtb(configs) {
                     value: 0
                 }
             },
-            targetingKeys: { // Targeting keys for demand, should follow format ix_{statsId}_id
+            targetingKeys: {
                 id: 'ix_pxyz_id',
                 om: 'ix_pxyz_cpm',
                 pm: 'ix_pxyz_cpm',
                 pmid: 'ix_pxyz_dealid'
             },
-            bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.SRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.SRA,
+            requestType: Partner.RequestTypes.AJAX
         };
-        /* ---------------------------------------------------------------------------------------*/
+
+        /* --------------------------------------------------------------------------------------- */
 
         //? if (DEBUG) {
         var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
@@ -597,7 +605,7 @@ function PlaygroundXyzHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback,
+        adResponseCallback: adResponseCallback
         //? }
     };
 
