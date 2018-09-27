@@ -1,0 +1,35 @@
+{
+    "id": "1527046452377",
+    "seatbid": [
+        {
+            "bid": [
+                {
+                    "id": "3387676882712841244",
+                    "impid": "320x50_300x250",
+                    "price": 0,
+                    "adid": "81283306",
+                    "adm": "<script src=\"http://sin1-ib.adnxs.com/ab?e=wqT_3QKNBqANAwAAAwDWAAUBCPrCk9gFENqY9efK_va1ZhiL2-rgjcux9HIqNgkAAAECCPA_EQEHEAAA8D8ZCQkIAAAhCQkI8D8pEQkAMQkJ8IQAADCgk5QGOPo4QPo4SAJQ6pHhJli061ZgAGi0u114s_0EgAEBigEDVVNEkgEDQVVEmAGsAqAB-gGoAQGwAQC4AQLAAQTIAQLQAQDYAQDgAQDwAQCKAld1ZignYScsIDE0MDY2ODYsIDE1MjcwNDY1MjIpO3VmKCdyJywgODEyODMzMDYsQh4AKGknLCA3Mzc1NTMsMhwA8IqSAvUBITZ6UGJYd2lId3Y4SkVPcVI0U1lZQUNDMDYxWXdBRGdBUUFOSS1qaFFvSk9VQmxnQVlOc0RhQUJ3QUhnQWdBRUFpQUVBa0FFQm1BRUJvQUVCcUFFRHNBRUF1UUVwaTRpREFBRHdQOEVCS1l1SWd3QUE4RF9KQWNVcXh3cTBOXzhfMlFFQUFBAQMwRHdQLUFCa1lJdDlRRQERLEFtQUlBb0FJQXRRSQUQAHYNCKh3QUlBeUFJQTBBSUEyQUlBNEFJQTZBSUEtQUlBZ0FNQmtBTUFtQU1CcUFPBdhkdWdNSlUwbE9NVG96TlRVepoCLSFyQWxwclE2-AAodE90V0lBTW9BRG8yMADwk9gCvF_gAsiwOeoCC2Fib3V0OmJsYW5rgAMAiAMBkAMAmAMUoAMBqgMAwAOsAsgDANgDAOADAOgDAPgDA4AEAJIECS9vcGVucnRiMpgEAKgEALIEDAgAEAAYACAAMAA4ALgEAMAEAMgEANIEDjcyOTAjU0lOMTozNTUz2gQCCAHgBADwBOqR4SaIBQGYBQCgBf____8FAxQBqgUNMTVFDCw0NTIzNzfABQDJBQAFARTwP9IFCQkFC2wAAADYBQHgBQHwBQH6BQQIABAAkAYAmAYAuAYA&s=e5d948db8ec1a4023ea7885532f6c83eeb080b2e&referrer=about%3Ablank&pp=${AUCTION_PRICE}\"></script>",
+                    "adomain": [
+                        "appnexus.com"
+                    ],
+                    "iurl": "http://sin1-ib.adnxs.com/cr?id=81283306",
+                    "cid": "7290",
+                    "crid": "81283306",
+                    "h": 51,
+                    "w": 320,
+                    "ext": {
+                        "appnexus": {
+                            "brand_id": 1,
+                            "auction_id": 7380234258297474138,
+                            "bidder_id": 2,
+                            "bid_ad_type": 0
+                        }
+                    }
+                }
+            ],
+            "seat": "7290"
+        }
+    ],
+    "bidid": "6259172536412389010",
+    "cur": "USD"
+}
