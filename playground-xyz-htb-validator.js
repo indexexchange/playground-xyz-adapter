@@ -10,7 +10,6 @@
  * prior written permission of Index Exchange.
  */
 
-
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +22,6 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-
 /* =============================================================================
  * STEP 0 | Config Validation
  * -----------------------------------------------------------------------------
@@ -33,6 +31,8 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * schema-insepctor to perform the validation. Information about it can be found here:
  * https://atinux.fr/schema-inspector/.
  */
+
+// eslint-disable-next-line func-style
 var partnerValidator = function (configs) {
     var result = Inspector.validate({
         type: 'object',
