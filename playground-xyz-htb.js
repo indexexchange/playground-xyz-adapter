@@ -398,7 +398,6 @@ function PlaygroundXyzHtb(configs) {
                 if (bids[k].impid === curReturnParcel.htSlot.getId()) {
                     curBid = bids[k];
                     bids.splice(k, 1);
-
                     break;
                 }
             }
