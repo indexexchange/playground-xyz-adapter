@@ -107,9 +107,6 @@ function getValidResponse(request, creative) {
                         h: 250,
                         w: 300,
                         ext: {
-                            advbrand: 'IX',
-                            advbrandid: '25661',
-                            pricelevel: '200',
                             appnexus: {
                                 brand_id: 1,
                                 auction_id: 7012796633677917000,
@@ -131,9 +128,6 @@ function getValidResponse(request, creative) {
                         h: 50,
                         w: 320,
                         ext: {
-                            advbrand: 'IX',
-                            advbrandid: '25661',
-                            pricelevel: '200',
                             appnexus: {
                                 brand_id: 1,
                                 auction_id: 7012796633677917000,
