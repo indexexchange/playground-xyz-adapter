@@ -116,7 +116,7 @@ function getValidResponse(request, creative) {
                         },
                         id: 567841330,
                         impid: 'htSlotDesktopAId',
-                        price: '200'
+                        price: '2'
                     },
                     {
                         adid: '1487603',
@@ -137,7 +137,7 @@ function getValidResponse(request, creative) {
                         },
                         id: 567841330,
                         impid: 'htSlotDesktopAId',
-                        price: '100'
+                        price: '1'
                     }
                 ],
                 seat: '2439'
@@ -190,7 +190,7 @@ function getPassResponse(request) {
 
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_pxyz_cpm: jasmine.arrayContaining(['300x250_5000', '320x50_5000']),
+        ix_pxyz_cpm: jasmine.arrayContaining(['300x250_200', '320x50_100']),
         ix_pxyz_id: jasmine.arrayContaining([jasmine.any(String)])
     }));
 }
